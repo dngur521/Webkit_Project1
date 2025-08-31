@@ -55,7 +55,7 @@ def read_and_save_dht_data():
 
         if humidity is not None and temperature is not None:
             # 데이터베이스에 저장
-            conn = mysql.connector.connect(user='master', password='1234', host='localhost', database='aircon_data')
+            conn = mysql.connector.connect(user='user이름', password='비밀번호', host='localhost', database='aircon_data')
             cursor = conn.cursor()
             query = "INSERT INTO sensor_data (temperature, humidity, timestamp) VALUES (%s, %s, NOW())"
             cursor.execute(query, (temperature, humidity))
@@ -91,7 +91,7 @@ def handle_command():
     
     # 데이터베이스에 히스토리 삽입
     try:
-        conn = mysql.connector.connect(user='master', password='1234', host='localhost', database='aircon_data')
+        conn = mysql.connector.connect(user='유저이름', password='비밀번호', host='localhost', database='aircon_data')
         cursor = conn.cursor()
         query = "INSERT INTO history (command, response, timestamp) VALUES (%s, %s, NOW())"
         cursor.execute(query, (command_to_send, result.get('arduinoResponse', 'No response')))
@@ -118,7 +118,7 @@ def handle_sensor_data():
         return jsonify({"status": "error", "message": "Temperature and humidity fields are required."}), 400
 
     try:
-        conn = mysql.connector.connect(user='master', password='1234', host='localhost', database='aircon_data')
+        conn = mysql.connector.connect(user='유저이름', password='비밀번호', host='localhost', database='aircon_data')
         cursor = conn.cursor()
         query = "INSERT INTO sensor_data (temperature, humidity, timestamp) VALUES (%s, %s, NOW())"
         cursor.execute(query, (temperature, humidity))
@@ -148,7 +148,7 @@ def get_dht_sensor_data():
 @app.route('/history', methods=['GET'])
 def get_history():
     try:
-        conn = mysql.connector.connect(user='master', password='1234', host='localhost', database='aircon_data')
+        conn = mysql.connector.connect(user='유저이름', password='비밀번호', host='localhost', database='aircon_data')
         cursor = conn.cursor(dictionary=True)
         query = "SELECT * FROM history ORDER BY timestamp DESC"
         cursor.execute(query)
@@ -164,7 +164,7 @@ def get_history():
 @app.route('/sensor-data-all', methods=['GET'])
 def get_all_sensor_data():
     try:
-        conn = mysql.connector.connect(user='master', password='1234', host='localhost', database='aircon_data')
+        conn = mysql.connector.connect(user='유저이름', password='비밀번호', host='localhost', database='aircon_data')
         cursor = conn.cursor(dictionary=True)
         query = "SELECT * FROM sensor_data ORDER BY timestamp DESC"
         cursor.execute(query)
@@ -179,13 +179,13 @@ def get_all_sensor_data():
 if __name__ == '__main__':
     try:
         # 데이터베이스 연결 및 테이블 생성
-        conn = mysql.connector.connect(user='master', password='1234', host='localhost')
+        conn = mysql.connector.connect(user='유저이름', password='비밀번호', host='localhost')
         cursor = conn.cursor()
         cursor.execute("CREATE DATABASE IF NOT EXISTS aircon_data")
         cursor.close()
         conn.close()
         
-        conn = mysql.connector.connect(user='master', password='1234', host='localhost', database='aircon_data')
+        conn = mysql.connector.connect(user='유저이름', password='비밀번호', host='localhost', database='aircon_data')
         cursor = conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS history (
@@ -217,4 +217,4 @@ if __name__ == '__main__':
     # sensor_thread.start()
 
     # 서버를 모든 IP 주소에서 접근 가능하도록 '0.0.0.0'으로 설정
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=1111, debug=True)
