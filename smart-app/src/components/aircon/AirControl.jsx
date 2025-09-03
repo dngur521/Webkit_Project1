@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Node.js 서버 URL을 여기에 설정합니다.
 // React 앱이 Node.js 서버와 같은 컴퓨터에서 실행된다고 가정합니다.
-const NODE_JS_SERVER_URL = 'http://localhost:7777/api/arduino';
+const NODE_JS_SERVER_URL = 'http://localhost:6677/api/arduino';
 
 // API 요청을 처리하는 함수
 const sendCommandToArduino = async (command) => {

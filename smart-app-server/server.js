@@ -9,7 +9,7 @@ const morgan = require('morgan');
 //라우터 가져오기
 const arduinoRouter = require('./src/routes/arduinoRouter');
 
-const port = process.env.PORT || 7777;
+const port = process.env.PORT || 6677;
 console.log('port: ', port);
 
 const app = express();

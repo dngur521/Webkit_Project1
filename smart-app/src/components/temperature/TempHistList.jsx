@@ -26,7 +26,7 @@ const TempHistList = () => {
             try {
                 setLoading(true);
                 const response = await fetch(
-                    `http://localhost:7777/api/arduino/dht-history?page=${currentPage}&limit=${itemsPerPage}`
+                    `http://localhost:6677/api/arduino/dht-history?page=${currentPage}&limit=${itemsPerPage}`
                 );
                 if (!response.ok) {
                     throw new Error('Failed to fetch temp & humi history.');
