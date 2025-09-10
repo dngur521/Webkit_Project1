@@ -12,6 +12,12 @@ export default function Header() {
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="me-auto"></Nav>
                     <Nav>
+                        <Nav.Link as={Link} to="/aircon/control">
+                            Air Conditioner Control
+                        </Nav.Link>
+                        <Nav.Link as={Link} to="/temp/check">
+                            Temperature Check
+                        </Nav.Link>
                         <Nav.Link as={Link} to="/aircon/history">
                             Air Conditioner History
                         </Nav.Link>

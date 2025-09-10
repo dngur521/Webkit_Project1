@@ -7,7 +7,7 @@ export default function TempCheck() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const NODE_JS_SERVER_URL = 'http://localhost:6677/api/arduino';
+    const NODE_JS_SERVER_URL = '/api/arduino';
 
     const fetchData = async () => {
         try {
