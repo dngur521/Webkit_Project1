@@ -8,6 +8,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import theme from './theme';
 import App from './App';
 import './index.css';
+import { AuthProvider } from './context/AuthContext';
 
 // React Query 클라이언트 생성
 const queryClient = new QueryClient();
@@ -24,7 +25,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <CssBaseline />
           {/* React Router Provider */}
           <BrowserRouter>
-            <App />
+            <AuthProvider>
+              <App />
+            </AuthProvider>
           </BrowserRouter>
         </LocalizationProvider>
       </ThemeProvider>

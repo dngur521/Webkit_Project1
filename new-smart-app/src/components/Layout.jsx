@@ -15,38 +15,58 @@ import {
   useTheme,
   useMediaQuery,
   CssBaseline,
+  Button, // 1. Button 추가
+  CircularProgress, // 2. 로딩 스피너 추가
+  Stack, // 3. 스택 추가
 } from '@mui/material';
+// 4. 아이콘 추가
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import HistoryIcon from '@mui/icons-material/History';
 import DeviceThermostatIcon from '@mui/icons-material/DeviceThermostat';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
+// ------------------------------------
+
+import { useAuth } from '../hooks/useAuth'; // 5. useAuth 훅 import
+import { useLogout } from '../hooks/useApi'; // 6. useLogout 훅 import
+
 
 const drawerWidth = 240; // 사이드바 너비
 
 // 메뉴 아이템 정의
 const menuItems = [
-  { text: '홈', icon: <HomeIcon />, path: '/' },
-  { text: '에어컨 제어', icon: <AcUnitIcon />, path: '/aircon/control' },
-  { text: '실시간 온습도', icon: <DeviceThermostatIcon />, path: '/temp/check' },
-  { text: '제어 기록', icon: <HistoryIcon />, path: '/aircon/history' },
-  { text: '온습도 기록', icon: <BarChartIcon />, path: '/temp/history' },
+  { text: '홈', icon: <HomeIcon />, path: '/', requiresAuth: false },
+  { text: '에어컨 제어', icon: <AcUnitIcon />, path: '/aircon/control', requiresAuth: true },
+  { text: '실시간 온습도', icon: <DeviceThermostatIcon />, path: '/temp/check', requiresAuth: true },
+  { text: '제어 기록', icon: <HistoryIcon />, path: '/aircon/history', requiresAuth: true },
+  { text: '온습도 기록', icon: <BarChartIcon />, path: '/temp/history', requiresAuth: true },
 ];
 
-/**
- * MUI의 AppBar와 Drawer를 사용한 메인 대시보드 레이아웃
- * (기존 Header, Side, Footer 대체)
- */
 function Layout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const theme = useTheme();
-  // 'md' (768px) 미만일 경우 모바일로 간주
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
+  
+  // 7. 인증 훅 사용
+  const { isAuthenticated, user, isLoading } = useAuth();
+  const { mutate: logout, isPending: isLoggingOut } = useLogout(); 
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+  
+  // 로그아웃 핸들러
+  const handleLogout = () => {
+    // 서버에 무효화 요청 후 클라이언트 토큰 삭제
+    logout();
+    if (isMobile) {
+      handleDrawerToggle();
+    }
   };
 
   // Drawer (사이드바)에 표시될 컨텐츠
@@ -55,33 +75,84 @@ function Layout({ children }) {
       <Toolbar />
       <Box sx={{ overflow: 'auto' }}>
         <List>
-          {menuItems.map((item) => (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton
+          {menuItems.map((item) => {
+            // 8. 로그인 상태에 따라 메뉴 표시 결정
+            if (item.requiresAuth && !isAuthenticated) {
+                return null;
+            }
+            return (
+                <ListItem key={item.text} disablePadding>
+                <ListItemButton
+                    component={RouterLink}
+                    to={item.path}
+                    selected={location.pathname === item.path}
+                    onClick={isMobile ? handleDrawerToggle : undefined}
+                    sx={{
+                    borderRadius: '0 100px 100px 0',
+                    marginRight: '10px',
+                    '&.Mui-selected': {
+                        backgroundColor: 'primary.main',
+                        color: 'white',
+                        '& .MuiListItemIcon-root': {
+                        color: 'white',
+                        },
+                        '&:hover': {
+                        backgroundColor: 'primary.dark',
+                        },
+                    },
+                    }}
+                >
+                    <ListItemIcon>{item.icon}</ListItemIcon>
+                    <ListItemText primary={item.text} />
+                </ListItemButton>
+                </ListItem>
+            );
+          })}
+
+          {/* 9. 로그인/로그아웃 버튼 추가 */}
+          <Box sx={{ px: 2, pt: 2 }}>
+            {isLoading ? (
+                <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
+                    <CircularProgress size={20} />
+                    <Typography variant="caption">인증 확인 중...</Typography>
+                </Stack>
+            ) : isAuthenticated ? (
+              <Stack spacing={1}>
+                {/* 프로필 링크 */}
+                <ListItemButton
+                    component={RouterLink}
+                    to="/user/profile"
+                    selected={location.pathname === '/user/profile'}
+                    onClick={isMobile ? handleDrawerToggle : undefined}
+                >
+                    <ListItemIcon><PersonIcon /></ListItemIcon>
+                    <ListItemText primary={`프로필 (${user?.username})`} />
+                </ListItemButton>
+                {/* 로그아웃 버튼 */}
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="error"
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  startIcon={isLoggingOut ? <CircularProgress size={20} color="inherit" /> : <LogoutIcon />}
+                >
+                  {isLoggingOut ? '로그아웃 중...' : '로그아웃'}
+                </Button>
+              </Stack>
+            ) : (
+              <Button
+                fullWidth
+                variant="contained"
+                startIcon={<LoginIcon />}
                 component={RouterLink}
-                to={item.path}
-                selected={location.pathname === item.path}
+                to="/auth/login"
                 onClick={isMobile ? handleDrawerToggle : undefined}
-                sx={{
-                  borderRadius: '0 100px 100px 0',
-                  marginRight: '10px',
-                  '&.Mui-selected': {
-                    backgroundColor: 'primary.main',
-                    color: 'white',
-                    '& .MuiListItemIcon-root': {
-                      color: 'white',
-                    },
-                    '&:hover': {
-                      backgroundColor: 'primary.dark',
-                    },
-                  },
-                }}
               >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+                로그인
+              </Button>
+            )}
+          </Box>
         </List>
       </Box>
     </div>
@@ -103,22 +174,50 @@ function Layout({ children }) {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }} // 모바일에서만 햄버거 메뉴 보이기
+            sx={{ mr: 2, display: { md: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Smart Home Dashboard
           </Typography>
+          {/* 10. 데스크탑 헤더에 로그인/사용자 정보 표시 */}
+          {!isMobile && (
+              <Stack direction="row" spacing={2} alignItems="center">
+                  {isLoading ? (
+                      <CircularProgress color="inherit" size={24} />
+                  ) : isAuthenticated ? (
+                      <>
+                          <Typography variant="subtitle1">
+                              환영합니다, {user?.username}님!
+                          </Typography>
+                          <Button 
+                              color="inherit" 
+                              onClick={handleLogout} 
+                              disabled={isLoggingOut}
+                              startIcon={isLoggingOut ? <CircularProgress size={20} color="inherit" /> : <LogoutIcon />}
+                          >
+                            로그아웃
+                          </Button>
+                      </>
+                  ) : (
+                      <Button 
+                          color="inherit" 
+                          component={RouterLink} 
+                          to="/auth/login" 
+                          startIcon={<LoginIcon />}
+                      >
+                          로그인
+                      </Button>
+                  )}
+              </Stack>
+          )}
         </Toolbar>
       </AppBar>
 
-      <Box
-        component="nav"
-        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
-        aria-label="mailbox folders"
-      >
-        {/* Mobile Drawer (Temporary) */}
+      {/* ... (기존 Drawer 코드) ... */}
+      
+      {/* Mobile Drawer (Temporary) */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -154,7 +253,7 @@ function Layout({ children }) {
         >
           {drawerContent}
         </Drawer>
-      </Box>
+
 
       {/* 메인 컨텐츠 영역 */}
       <Box
@@ -162,10 +261,18 @@ function Layout({ children }) {
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { md: `calc(100% - ${drawerWidth}px)` },
+          // 1. 너비는 100%를 유지하거나, flexGrow: 1에 맡깁니다.
+          width: '100%', 
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
+          
+          // 2. 핵심 수정: 데스크탑(md) 이상에서 왼쪽 마진을 줍니다.
+          // 이 마진이 사이드바가 차지하는 공간입니다.
+          ml: { md: `${drawerWidth}px` }, 
+          
+          // 3. (선택적) AppBar가 차지하는 높이만큼 상단 패딩을 조정할 수도 있습니다.
+          // pt: { xs: 8, md: 10 } // 만약 Toolbar만으로 부족하다면
         }}
       >
         <Toolbar />

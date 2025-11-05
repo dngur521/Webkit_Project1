@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from './useAuth';
+import axios from 'axios';
 
-const API_BASE_URL = '/api/arduino'; // vite.config.js에서 프록시 설정됨
+const API_BASE_URL = '/api/arduino';
 
 // API Fetcher 함수들
 // --------------------
@@ -31,19 +33,14 @@ const fetchHistory = async (apiPath, page, limit = 10) => {
 };
 
 /**
- * 아두이노로 명령어를 POST합니다.
+ * 아두이노로 명령어를 POST합니다. (토큰 인증이 필요하다고 가정하고 authApi 사용으로 변경)
  * @param {string} command - 'SEND 0,5'와 같은 명령어
+ * @param {object} authApi - useAuth에서 가져온 인증된 Axios 인스턴스
  */
-const postCommand = async (command) => {
-    const res = await fetch(`${API_BASE_URL}/send-command`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ command }),
-    });
-    if (!res.ok) throw new Error('Network response was not ok');
-    const data = await res.json();
+const postCommand = async ({ command, authApi }) => {
+    // 토큰이 자동으로 헤더에 추가됩니다.
+    const res = await authApi.post(`${API_BASE_URL}/send-command`, { command });
+    const data = res.data;
     if (data.status !== 'success') throw new Error(data.message || 'Failed to send command');
     return data;
 };
@@ -91,16 +88,90 @@ export const useTempHistory = (page, rowsPerPage) => {
 };
 
 /**
- * 에어컨 명령어를 전송하기 위한 훅.
- * 성공 시 'airHistory' 쿼리를 무효화하여 기록을 자동 갱신합니다.
+ * 에어컨 명령어를 전송하기 위한 훅. (authApi 사용하도록 수정)
  */
 export const useSendCommand = () => {
     const queryClient = useQueryClient();
+    const { authApi } = useAuth(); // authApi 인스턴스를 가져옵니다.
+
     return useMutation({
-        mutationFn: postCommand,
+        // mutationFn에 authApi를 인자로 넘겨줍니다.
+        mutationFn: (command) => postCommand({ command, authApi }),
         onSuccess: () => {
-            // 명령어 전송 성공 시, 에어컨 기록 캐시를 무효화하여 새로고침
             queryClient.invalidateQueries({ queryKey: ['airHistory'] });
+        },
+    });
+};
+
+// 4. 인증 관련 API Hook 추가
+// --------------------
+
+/**
+ * 로그인 훅
+ */
+export const useLogin = () => {
+    const { setTokens, fetchUserProfile } = useAuth();
+
+    return useMutation({
+        mutationFn: async ({ username, password }) => {
+            const res = await axios.post('/api/auth/login', { username, password });
+            return res.data;
+        },
+        onSuccess: (data) => {
+            setTokens(data.access_token, data.refresh_token);
+            fetchUserProfile(); // 토큰 저장 후 사용자 정보 로드
+        },
+    });
+};
+
+/**
+ * 회원가입 훅
+ */
+export const useRegister = () => {
+    return useMutation({
+        mutationFn: async ({ username, password }) => {
+            const res = await axios.post('/api/auth/register', { username, password });
+            return res.data;
+        },
+    });
+};
+
+/**
+ * 로그아웃 훅
+ */
+export const useLogout = () => {
+    const { removeTokens } = useAuth();
+
+    return useMutation({
+        mutationFn: async () => {
+            const refreshToken = localStorage.getItem('refresh_token');
+            // 서버에 Refresh Token 무효화 요청 (클라이언트에서도 토큰 삭제)
+            await axios.post('/api/auth/logout', { refresh_token: refreshToken });
+        },
+        onSuccess: () => {
+            removeTokens();
+        },
+        onError: () => {
+            // 서버 측 로그아웃 실패 시에도 클라이언트 토큰은 삭제
+            removeTokens();
+        },
+    });
+};
+
+/**
+ * 회원 탈퇴 훅
+ */
+export const useDeleteUser = () => {
+    const { authApi, removeTokens } = useAuth();
+
+    return useMutation({
+        mutationFn: async () => {
+            // 토큰이 필요하므로 authApi 사용
+            const res = await authApi.delete('/user/delete');
+            return res.data;
+        },
+        onSuccess: () => {
+            removeTokens();
         },
     });
 };

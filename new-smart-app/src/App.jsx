@@ -1,23 +1,36 @@
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+// 1. 페이지 및 보호 컴포넌트 import
+import ProtectedRoute from './components/ProtectedRoute'; 
 import HomePage from './pages/HomePage';
 import AirControlPage from './pages/AirControlPage';
 import AirHistoryPage from './pages/AirHistoryPage';
 import TempCheckPage from './pages/TempCheckPage';
 import TempHistoryPage from './pages/TempHistoryPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
+// ----------------------------------------
 
-/**
- * App 컴포넌트는 메인 레이아웃과 라우팅을 관리합니다.
- */
+
 function App() {
   return (
     <Layout>
       <Routes>
+        {/* 인증이 필요 없는 경로 */}
         <Route path="/" element={<HomePage />} />
-        <Route path="/aircon/control" element={<AirControlPage />} />
-        <Route path="/aircon/history" element={<AirHistoryPage />} />
-        <Route path="/temp/check" element={<TempCheckPage />} />
-        <Route path="/temp/history" element={<TempHistoryPage />} />
+        <Route path="/auth/login" element={<LoginPage />} />
+        <Route path="/auth/register" element={<RegisterPage />} />
+        
+        {/* 인증이 필요한 경로 (ProtectedRoute로 감쌉니다) */}
+        <Route path="/aircon/control" element={<ProtectedRoute><AirControlPage /></ProtectedRoute>} />
+        <Route path="/aircon/history" element={<ProtectedRoute><AirHistoryPage /></ProtectedRoute>} />
+        <Route path="/temp/check" element={<ProtectedRoute><TempCheckPage /></ProtectedRoute>} />
+        <Route path="/temp/history" element={<ProtectedRoute><TempHistoryPage /></ProtectedRoute>} />
+        <Route path="/user/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+
+        {/* 404 처리 (필요시 추가) */}
+        {/* <Route path="*" element={<NotFoundPage />} /> */}
       </Routes>
     </Layout>
   );

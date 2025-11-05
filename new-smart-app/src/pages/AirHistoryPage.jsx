@@ -16,7 +16,8 @@ import {
 } from '@mui/material';
 import { useAirHistory } from '../hooks/useApi';
 import { getCommandDescription } from '../utils/commandUtils';
-import dayjs from 'dayjs'; // 날짜 포맷팅을 위해 dayjs 사용
+import dayjs from 'dayjs';
+
 
 /**
  * 에어컨 제어 기록 페이지
