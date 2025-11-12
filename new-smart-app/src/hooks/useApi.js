@@ -39,7 +39,7 @@ const fetchHistory = async (apiPath, page, limit = 10) => {
  */
 const postCommand = async ({ command, authApi }) => {
     // 토큰이 자동으로 헤더에 추가됩니다.
-    const res = await authApi.post(`${API_BASE_URL}/send-command`, { command });
+    const res = await authApi.post(`/arduino/send-command`, { command });
     const data = res.data;
     if (data.status !== 'success') throw new Error(data.message || 'Failed to send command');
     return data;
