@@ -29,6 +29,8 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
+import VideocamIcon from '@mui/icons-material/Videocam';
+import ComputerIcon from '@mui/icons-material/Computer';
 // ------------------------------------
 
 import { useAuth } from '../hooks/useAuth'; // 5. useAuth 훅 import
@@ -42,8 +44,10 @@ const menuItems = [
   { text: '홈', icon: <HomeIcon />, path: '/', requiresAuth: false },
   { text: '에어컨 제어', icon: <AcUnitIcon />, path: '/aircon/control', requiresAuth: true },
   { text: '실시간 온습도', icon: <DeviceThermostatIcon />, path: '/temp/check', requiresAuth: true },
+  { text: 'CCTV', icon: <VideocamIcon />, path: '/cctv', requiresAuth: true },
   { text: '제어 기록', icon: <HistoryIcon />, path: '/aircon/history', requiresAuth: true },
   { text: '온습도 기록', icon: <BarChartIcon />, path: '/temp/history', requiresAuth: true },
+  { text: '시스템 정보', icon: <ComputerIcon />, path: '/system', requiresAuth: true },
 ];
 
 function Layout({ children }) {

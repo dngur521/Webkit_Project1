@@ -31,6 +31,11 @@ export const AuthProvider = ({ children }) => {
   const setTokens = useCallback((accessToken, refreshToken) => {
     localStorage.setItem('access_token', accessToken);
     localStorage.setItem('refresh_token', refreshToken);
+
+    // (추가) access_token을 세션 쿠키로 저장
+    // Nginx auth_request가 이 쿠키를 읽어서 app.py로 전달합니다.
+    document.cookie = `access_token_cookie=${accessToken}; path=/`;
+
     setIsAuthenticated(true);
   }, []);
 
@@ -38,6 +43,10 @@ export const AuthProvider = ({ children }) => {
   const removeTokens = useCallback(() => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+
+    // (추가) 쿠키 삭제 (만료일을 과거로 설정)
+    document.cookie = 'access_token_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+
     setIsAuthenticated(false);
     setUser(null);
   }, []);
@@ -158,3 +167,4 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   return useContext(AuthContext);
 };
+

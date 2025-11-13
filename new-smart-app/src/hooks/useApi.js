@@ -175,3 +175,33 @@ export const useDeleteUser = () => {
         },
     });
 };
+
+/**
+ * 실시간 시스템 통계 데이터를 가져옵니다. (authApi 사용)
+ */
+const fetchSystemStats = async (authApi) => {
+    // @login_required로 보호되므로 authApi를 사용해야 합니다.
+    const res = await authApi.get('/system/stats');
+    if (res.status !== 200) throw new Error('Network response was not ok');
+    const data = res.data; // authApi(axios)는 .data에 json이 있습니다.
+    if (data.status !== 'success') throw new Error(data.message || 'Failed to fetch system stats');
+    return data.data; // 실제 데이터 객체 반환
+};
+
+/**
+ * 실시간 시스템 통계 (CPU, RAM, NET)를 위한 훅.
+ * 3초마다 자동으로 데이터를 새로고침합니다.
+ */
+export const useSystemStats = () => {
+    const { authApi } = useAuth(); // 인증된 API 인스턴스 가져오기
+
+    return useQuery({
+        queryKey: ['systemStats'],
+        // queryFn이 authApi를 인자로 받도록 수정
+        queryFn: () => fetchSystemStats(authApi),
+        refetchInterval: 3000, // 3초마다 자동 갱신
+        staleTime: 1000,
+        // authApi가 준비될 때까지 쿼리 비활성화
+        enabled: !!authApi,
+    });
+};

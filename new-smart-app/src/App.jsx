@@ -1,6 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
-// 1. 페이지 및 보호 컴포넌트 import
 import ProtectedRoute from './components/ProtectedRoute'; 
 import HomePage from './pages/HomePage';
 import AirControlPage from './pages/AirControlPage';
@@ -10,6 +9,8 @@ import TempHistoryPage from './pages/TempHistoryPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
+import CctvPage from './pages/CctvPage';
+import SystemInfoPage from './pages/SystemInfoPage';
 // ----------------------------------------
 
 
@@ -28,6 +29,8 @@ function App() {
         <Route path="/temp/check" element={<ProtectedRoute><TempCheckPage /></ProtectedRoute>} />
         <Route path="/temp/history" element={<ProtectedRoute><TempHistoryPage /></ProtectedRoute>} />
         <Route path="/user/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/cctv" element={<ProtectedRoute><CctvPage /></ProtectedRoute>} />
+        <Route path="/system" element={<ProtectedRoute><SystemInfoPage /></ProtectedRoute>} />
 
         {/* 404 처리 (필요시 추가) */}
         {/* <Route path="*" element={<NotFoundPage />} /> */}
