@@ -31,6 +31,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import ComputerIcon from '@mui/icons-material/Computer';
+import TerminalIcon from '@mui/icons-material/Terminal';
 // ------------------------------------
 
 import { useAuth } from '../hooks/useAuth'; // 5. useAuth 훅 import
@@ -48,6 +49,7 @@ const menuItems = [
   { text: '제어 기록', icon: <HistoryIcon />, path: '/aircon/history', requiresAuth: true },
   { text: '온습도 기록', icon: <BarChartIcon />, path: '/temp/history', requiresAuth: true },
   { text: '시스템 정보', icon: <ComputerIcon />, path: '/system', requiresAuth: true },
+  { text: '시스템 콘솔', icon: <TerminalIcon />, path: '/console', requiresAuth: true },
 ];
 
 function Layout({ children }) {

@@ -11,6 +11,7 @@ import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import CctvPage from './pages/CctvPage';
 import SystemInfoPage from './pages/SystemInfoPage';
+import SystemConsolePage from './pages/SystemConsolePage';
 // ----------------------------------------
 
 
@@ -31,6 +32,7 @@ function App() {
         <Route path="/user/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/cctv" element={<ProtectedRoute><CctvPage /></ProtectedRoute>} />
         <Route path="/system" element={<ProtectedRoute><SystemInfoPage /></ProtectedRoute>} />
+        <Route path="/console" element={<ProtectedRoute><SystemConsolePage /></ProtectedRoute>} />
 
         {/* 404 처리 (필요시 추가) */}
         {/* <Route path="*" element={<NotFoundPage />} /> */}
